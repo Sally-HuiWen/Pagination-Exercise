@@ -17,7 +17,20 @@ app.get('/musicians', async (req, res, next) => {
     // Parse the query params, set default values, and create appropriate
     // offset and limit values if necessary.
     // Your code here
-    
+    let { page, size } = req.query;
+    page = parseInt(page);
+    size = parseInt(size);
+    let limit;
+    let offset;
+    if (isNaN(page) || page < 0) page = 1;
+    if (isNaN(size) || size < 0) size = 5;
+    if (page === 0 || size === 0) {
+        limit = null,
+        offset = null
+    } else {
+        limit = size;
+        offset = size * (page - 1)
+    }
     // Query for all musicians
     // Include attributes for `id`, `firstName`, and `lastName`
     // Include associated bands and their `id` and `name`
@@ -30,7 +43,9 @@ app.get('/musicians', async (req, res, next) => {
             attributes: ['id', 'name']
         }],
         // add limit key-value to query
+        limit,
         // add offset key-value to query
+        offset,
         // Your code here
     });
 
@@ -43,6 +58,20 @@ app.get('/bands', async (req, res, next) => {
     // Parse the query params, set default values, and create appropriate
     // offset and limit values if necessary.
     // Your code here
+    let { page, size } = req.query;
+    page = parseInt(page);
+    size = parseInt(size);
+    if (isNaN(page) || page < 0) page = 1;
+    if (isNaN(size) || size < 0) size = 5;
+    let pagination = {};
+    if (page === 0 || size === 0) {
+        pagination.limit = null;
+        pagination.offset = null;//my note: page=0 or size =0, return all !
+    } else {
+        pagination.limit = size;
+        pagination.offset = (page - 1) * size;
+    }
+    
     
     // Query for all bands
     // Include attributes for `id` and `name`
@@ -58,6 +87,7 @@ app.get('/bands', async (req, res, next) => {
         // add limit key-value to query
         // add offset key-value to query
         // Your code here
+        ...pagination
     });
 
     res.json(bands)
@@ -69,7 +99,20 @@ app.get('/instruments', async (req, res, next) => {
     // Parse the query params, set default values, and create appropriate
     // offset and limit values if necessary.
     // Your code here
-    
+    const { page, size } = req.query;
+ 
+    page = parseInt(page);
+    size = parseInt(size);
+    if (isNaN(page) || page < 0) page = 1;
+    if (isNaN(size) || size < 0) size = 5;
+    let pagination = {};
+    if (page === 0 || size === 0) {
+        pagination.limit = null;
+        pagination.offset = null;//my note: page=0 or size =0, return all !
+    } else {
+        pagination.limit = size;
+        pagination.offset = (page - 1) * size;
+    }
     // Query for all instruments
     // Include attributes for `id` and `type`
     // Include associated musicians and their `id`, `firstName` and `lastName`
@@ -89,6 +132,7 @@ app.get('/instruments', async (req, res, next) => {
                 attributes: ['id', 'name']
             }]
         }],
+        ...pagination
         // add limit key-value to query
         // add offset key-value to query
         // Your code here
@@ -109,5 +153,5 @@ app.get('/', (req, res) => {
 });
 
 // Set port and listen for incoming requests - DO NOT MODIFY
-const port = 5000;
+const port = 5001;
 app.listen(port, () => console.log('Server is listening on port', port));
